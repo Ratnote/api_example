@@ -1,14 +1,21 @@
-<?php
+<?php namespace App\Http\Controllers;
 
-namespace App\Http\Controllers;
+use \utils\Transformers\LessonTransformer;
 
-Class ApiController extends Controller {
+Class ApiController extends ResponseController {
+
+    protected $lessonTransformer;
+
+    public function __construct(lessonTransformer $lessonTransformer)
+    {
+        $this->lessonTransformer = $lessonTransformer;
+    }
 
     public function indexGET()
     {
         $data = \App\Lesson::all();
         return \Response::json([
-            'data' => $data
+            'data' => $this->lessonTransformer->transformCollection($data->toArray())
             ], 200);
     }
 
@@ -16,29 +23,13 @@ Class ApiController extends Controller {
     {
         $lesson = \App\Lesson::find($id);
 
-        if (!$lesson)
-            return \Response::json([
-                'error' => [
-                    'message' => 'Lesson does not exist'
-                ]
-            ], 404);
+        if (!$lesson) {
+            return $this->respondNotFound();
+        }
+
 
         return \Response::json([
-            'data' => $lesson
+            'data' => $this->lessonTransformer->transform($lesson)
         ]);
     }
-
-    private function transform($lessons)
-    {
-
-        return array_map(function($lessons)
-        {
-            return [
-                'title'  => $lesson['title'],
-                'body'   => $lesson['body'],
-                'active' => $lesson['some_bool']
-            ];
-        }, $lessons->toArray());
-    }
-
 }
