@@ -14,9 +14,9 @@ Class ApiController extends ResponseController {
     public function indexGET()
     {
         $data = \App\Lesson::all();
-        return \Response::json([
+        return $this->respond([
             'data' => $this->lessonTransformer->transformCollection($data->toArray())
-            ], 200);
+            ]);
     }
 
     public function lessonGET($id)
@@ -28,8 +28,13 @@ Class ApiController extends ResponseController {
         }
 
 
-        return \Response::json([
+        return $this->respond([
             'data' => $this->lessonTransformer->transform($lesson)
         ]);
+    }
+
+    public function storePOST()
+    {
+        return 'store';
     }
 }
